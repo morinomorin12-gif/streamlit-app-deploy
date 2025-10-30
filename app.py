@@ -1,14 +1,16 @@
 
 from dotenv import load_dotenv
+import os
+from dotenv import load_dotenv
+import streamlit as st
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, HumanMessage
 
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # app_llm_expert_switch.py
-import os
-import streamlit as st
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, HumanMessage
+
 
 # =========================
 # 設定
@@ -100,10 +102,11 @@ input_text = st.text_area(
 with st.expander("詳細設定（任意）"):
     model_name = st.text_input("モデル名", value=DEFAULT_MODEL, help="例: gpt-4o-mini / gpt-4o / o4-mini など")
     temperature = st.slider("温度（創造性）", min_value=0.0, max_value=1.0, value=0.2, step=0.05)
-else:
-    # 旧Streamlitとの互換用（expander外で参照可能に）
-    model_name = locals().get("model_name", DEFAULT_MODEL)
-    temperature = locals().get("temperature", 0.2)
+# expander外でも変数を参照できるように、デフォルト値を補完
+if "model_name" not in locals():
+    model_name = DEFAULT_MODEL
+if "temperature" not in locals():
+    temperature = 0.2
 
 st.divider()
 
@@ -131,3 +134,4 @@ if st.button("実行"):
         except Exception as e:
             st.error(f"エラーが発生しました: {e}")
             st.info("APIキー（OPENAI_API_KEY）が設定されているか、モデル名の綴りやレート制限をご確認ください。")
+
